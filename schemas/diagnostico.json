@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Diagnostico",
+  "description": "Schema representando um ciclo de diagnóstico e suas respostas",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "setor_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "ciclo": {
+      "type": "string",
+      "maxLength": 20
+    },
+    "status": {
+      "type": "string",
+      "enum": ["em_andamento", "concluido"],
+      "default": "em_andamento"
+    },
+    "pontuacao_total": {
+      "type": ["number", "null"]
+    },
+    "nivel_maturidade": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 5
+    },
+    "respostas": {
+      "type": "array",
+      "description": "Lista de respostas para este diagnóstico",
+      "items": {
+        "type": "object",
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resposta": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "observacao": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["template_id", "resposta"]
+      }
+    },
+    "criado_em": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "concluido_em": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    }
+  },
+  "required": ["setor_id", "ciclo", "respostas"]
+}

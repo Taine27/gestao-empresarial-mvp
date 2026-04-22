@@ -1,0 +1,46 @@
+{
+  "nome": "Template Genérico de Maturidade",
+  "descricao": "Template padrão aplicável a qualquer setor da empresa.",
+  "dimensoes": [
+    {
+      "nome": "processos",
+      "peso": 0.25,
+      "perguntas": [
+        "Os processos da área estão mapeados e formalmente documentados?",
+        "Existe acompanhamento contínuo dos gargalos e melhorias nos fluxos de trabalho?"
+      ]
+    },
+    {
+      "nome": "dados",
+      "peso": 0.20,
+      "perguntas": [
+        "A tomada de decisão do setor é baseada em dados concretos e indicadores atualizados?",
+        "Os dados utilizados são confiáveis e estão centralizados para fácil acesso?"
+      ]
+    },
+    {
+      "nome": "tecnologia",
+      "peso": 0.25,
+      "perguntas": [
+        "As ferramentas tecnológicas utilizadas atendem adequadamente às necessidades do setor?",
+        "O setor possui automações para reduzir trabalhos manuais e repetitivos?"
+      ]
+    },
+    {
+      "nome": "pessoas",
+      "peso": 0.15,
+      "perguntas": [
+        "A equipe possui capacitação contínua e clareza sobre suas funções?",
+        "O engajamento e a produtividade da equipe são avaliados periodicamente?"
+      ]
+    },
+    {
+      "nome": "gestao",
+      "peso": 0.15,
+      "perguntas": [
+        "O setor possui metas claras alinhadas ao planejamento estratégico da empresa?",
+        "As lideranças promovem reuniões regulares para acompanhamento de resultados?"
+      ]
+    }
+  ]
+}

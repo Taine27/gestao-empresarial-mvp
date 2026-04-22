@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Setor",
+  "description": "Schema representando a entidade Setor",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identificador único do setor"
+    },
+    "nome": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "Nome do setor"
+    },
+    "descricao": {
+      "type": ["string", "null"],
+      "description": "Descrição detalhada do setor"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": ["nativo", "generico", "customizado"],
+      "description": "Tipo de setor"
+    },
+    "template_base": {
+      "type": ["string", "null"],
+      "maxLength": 100,
+      "description": "Referência ao template herdado"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ativo", "arquivado"],
+      "default": "ativo",
+      "description": "Status do setor"
+    },
+    "criado_em": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "atualizado_em": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["nome", "tipo"]
+}
