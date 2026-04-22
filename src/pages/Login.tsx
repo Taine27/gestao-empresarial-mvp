@@ -1,15 +1,45 @@
 import { useState } from 'react';
-import { Mail, Lock, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 function Login() {
+  const navigate = useNavigate();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    // TODO: Integração com Supabase Auth
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        setMessage('Conta criada com sucesso! Você já pode fazer login.');
+        setIsSignUp(false);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        navigate('/dashboard'); // Rota do painel (será criada depois)
+      }
+    } catch (err: any) {
+      setError(err.message || 'Ocorreu um erro na autenticação.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,11 +51,14 @@ function Login() {
       <div className="glass-panel login-box">
         <div className="login-header">
           <div className="logo-small">SIGME</div>
-          <h2>Acesse sua conta</h2>
-          <p>Entre para gerenciar seus diagnósticos.</p>
+          <h2>{isSignUp ? 'Crie sua conta' : 'Acesse sua conta'}</h2>
+          <p>{isSignUp ? 'Preencha os dados abaixo para se cadastrar.' : 'Entre para gerenciar seus diagnósticos.'}</p>
         </div>
 
-        <form onSubmit={handleLogin} className="login-form">
+        {error && <div className="alert error">{error}</div>}
+        {message && <div className="alert success">{message}</div>}
+
+        <form onSubmit={handleAuth} className="login-form">
           <div className="form-group">
             <label htmlFor="email">E-mail Corporativo</label>
             <div className="input-wrapper">
@@ -52,25 +85,33 @@ function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
               />
             </div>
           </div>
 
-          <div className="form-options">
-            <label className="remember-me">
-              <input type="checkbox" />
-              <span>Lembrar de mim</span>
-            </label>
-            <a href="#" className="forgot-password">Esqueceu a senha?</a>
-          </div>
+          {!isSignUp && (
+            <div className="form-options">
+              <label className="remember-me">
+                <input type="checkbox" />
+                <span>Lembrar de mim</span>
+              </label>
+              <a href="#" className="forgot-password">Esqueceu a senha?</a>
+            </div>
+          )}
 
-          <button type="submit" className="btn-primary w-full">
-            Entrar no Sistema
+          <button type="submit" className="btn-primary w-full flex-center" disabled={loading}>
+            {loading ? <Loader2 className="spin" size={20} /> : (isSignUp ? 'Cadastrar' : 'Entrar no Sistema')}
           </button>
         </form>
         
         <div className="login-footer">
-          <p>Não tem uma conta? <a href="#">Fale com um consultor</a></p>
+          <p>
+            {isSignUp ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
+            <button className="link-button" onClick={() => setIsSignUp(!isSignUp)}>
+              {isSignUp ? 'Faça login' : 'Crie uma agora'}
+            </button>
+          </p>
         </div>
       </div>
 
@@ -109,7 +150,7 @@ function Login() {
 
         .login-header {
           text-align: center;
-          margin-bottom: 2.5rem;
+          margin-bottom: 2rem;
         }
 
         .logo-small {
@@ -127,6 +168,26 @@ function Login() {
         .login-header p {
           color: var(--text-muted);
           font-size: 0.95rem;
+        }
+
+        .alert {
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          margin-bottom: 1.5rem;
+          font-size: 0.875rem;
+          text-align: center;
+        }
+
+        .error {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .success {
+          background: rgba(34, 197, 94, 0.1);
+          color: #4ade80;
+          border: 1px solid rgba(34, 197, 94, 0.2);
         }
 
         .login-form {
@@ -176,6 +237,20 @@ function Login() {
           width: 100%;
           margin-top: 0.5rem;
         }
+        
+        .flex-center {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          100% { transform: rotate(360deg); }
+        }
 
         .login-footer {
           margin-top: 2rem;
@@ -184,10 +259,18 @@ function Login() {
           color: var(--text-muted);
         }
 
-        .login-footer a {
+        .link-button {
+          background: none;
+          border: none;
           color: var(--primary);
-          text-decoration: none;
           font-weight: 500;
+          cursor: pointer;
+          font-family: inherit;
+          font-size: inherit;
+        }
+
+        .link-button:hover {
+          text-decoration: underline;
         }
       `}</style>
     </div>

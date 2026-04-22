@@ -54,3 +54,36 @@ ALTER TABLE setores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE templates_diagnostico ENABLE ROW LEVEL SECURITY;
 ALTER TABLE diagnosticos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE respostas_diagnostico ENABLE ROW LEVEL SECURITY;
+
+-- Tabela de Usuários (Profile) vinculada ao Supabase Auth
+CREATE TABLE usuarios (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    nome VARCHAR(100),
+    criado_em TIMESTAMP DEFAULT now(),
+    atualizado_em TIMESTAMP DEFAULT now()
+);
+
+-- Habilitar RLS para usuários
+ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de RLS para usuários
+CREATE POLICY "Usuários podem ver o próprio perfil" ON usuarios
+    FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Usuários podem atualizar o próprio perfil" ON usuarios
+    FOR UPDATE USING (auth.uid() = id);
+
+-- Trigger para criar o perfil do usuário automaticamente após o Sign Up
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.usuarios (id, email)
+    VALUES (new.id, new.email);
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
