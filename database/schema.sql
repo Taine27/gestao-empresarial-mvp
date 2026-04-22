@@ -15,6 +15,7 @@ CREATE TABLE setores (
 -- Tabela templates_diagnostico
 CREATE TABLE templates_diagnostico (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    setor_id UUID REFERENCES setores(id) ON DELETE CASCADE,
     setor_tipo VARCHAR(100),
     dimensao VARCHAR(50),
     pergunta TEXT NOT NULL,
@@ -56,34 +57,42 @@ ALTER TABLE diagnosticos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE respostas_diagnostico ENABLE ROW LEVEL SECURITY;
 
 -- Tabela de Usuários (Profile) vinculada ao Supabase Auth
-CREATE TABLE usuarios (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    nome VARCHAR(100),
-    criado_em TIMESTAMP DEFAULT now(),
-    atualizado_em TIMESTAMP DEFAULT now()
+CREATE TABLE profiles (
+  id UUID references auth.users(id) ON DELETE CASCADE primary key,
+  nome VARCHAR(100),
+  email VARCHAR(200),
+  perfil VARCHAR(20) default 'analista',
+  status VARCHAR(20) default 'ativo',
+  criado_em TIMESTAMP default now(),
+  atualizado_em TIMESTAMP default now()
 );
 
--- Habilitar RLS para usuários
-ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+-- Habilitar RLS para profiles
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- Políticas de RLS para usuários
-CREATE POLICY "Usuários podem ver o próprio perfil" ON usuarios
-    FOR SELECT USING (auth.uid() = id);
+-- Políticas de RLS para profiles
+CREATE POLICY "perfil_select_proprio" ON profiles
+FOR SELECT TO authenticated USING (auth.uid() = id);
 
-CREATE POLICY "Usuários podem atualizar o próprio perfil" ON usuarios
-    FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "perfil_update_proprio" ON profiles
+FOR UPDATE TO authenticated USING (auth.uid() = id);
+
+CREATE POLICY "perfil_select_admin" ON profiles
+FOR SELECT TO authenticated
+USING (EXISTS (
+  SELECT 1 FROM profiles WHERE id = auth.uid() AND perfil = 'admin'
+));
 
 -- Trigger para criar o perfil do usuário automaticamente após o Sign Up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.usuarios (id, email)
-    VALUES (new.id, new.email);
-    RETURN new;
+  INSERT INTO public.profiles (id, email, nome)
+  VALUES (new.id, new.email, new.raw_user_meta_data->>'nome');
+  RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

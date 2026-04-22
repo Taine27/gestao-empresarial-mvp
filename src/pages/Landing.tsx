@@ -62,7 +62,7 @@ function Landing() {
         .navbar {
           padding: 1.5rem 0;
           border-bottom: 1px solid var(--border);
-          background: rgba(15, 23, 42, 0.8);
+          background: rgba(255, 255, 255, 0.6);
           backdrop-filter: blur(10px);
           position: sticky;
           top: 0;
