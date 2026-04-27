@@ -96,6 +96,40 @@ export default function ConfiguracaoDiagnostico() {
           gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', 
           gap: '1.5rem' 
         }}>
+          {/* Card do Formulário Padrão (Global) */}
+          <div className="glass-panel card-hover" style={{ 
+            padding: '1.5rem', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '1rem',
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 0.6) 100%)',
+            border: '1px solid rgba(99, 102, 241, 0.2)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <span className="badge" style={{ background: 'var(--primary)', color: 'white', marginBottom: '0.5rem', display: 'inline-block' }}>
+                  Sistema
+                </span>
+                <h3 className="font-bold text-lg">Formulário Padrão</h3>
+              </div>
+              <Settings2 size={24} className="text-primary" />
+            </div>
+
+            <p className="text-sm text-muted">
+              Estas perguntas serão exibidas em <strong>todos</strong> os setores, complementando as perguntas específicas de cada área.
+            </p>
+
+            <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+              <button 
+                className="btn-primary w-full flex-center gap-2" 
+                style={{ padding: '0.75rem' }}
+                onClick={() => navigate(`/configuracao-diagnostico/padrao`)}
+              >
+                Configurar Perguntas Globais <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+
           {filteredSetores.length === 0 ? (
             <div className="glass-panel flex-center" style={{ gridColumn: '1 / -1', padding: '4rem', flexDirection: 'column' }}>
               <AlertCircle size={40} className="text-muted mb-2" />

@@ -104,27 +104,25 @@ export default function NovoDiagnostico() {
       }
 
       // 3. Puxar templates_diagnostico (perguntas)
-      // Tenta puxar perguntas atreladas a este setor especificamente
-      let { data: templates } = await supabase
+      // Buscamos as globais + as específicas deste setor
+      const { data: globalTemplates } = await supabase
+        .from('templates_diagnostico')
+        .select('*')
+        .eq('ativo', true)
+        .is('setor_id', null)
+        .order('ordem', { ascending: true });
+
+      const { data: sectorTemplates } = await supabase
         .from('templates_diagnostico')
         .select('*')
         .eq('ativo', true)
         .eq('setor_id', setorId)
         .order('ordem', { ascending: true });
-        
-      // Se não houver perguntas específicas (ex: setor recém criado ou nativo sem edições), busca as genéricas
-      if (!templates || templates.length === 0) {
-        const fallback = await supabase
-          .from('templates_diagnostico')
-          .select('*')
-          .eq('ativo', true)
-          .is('setor_id', null)
-          .order('ordem', { ascending: true });
-        templates = fallback.data;
-      }
 
-      if (templates) {
-        setPerguntas(templates as Template[]);
+      const allTemplates = [...(globalTemplates || []), ...(sectorTemplates || [])];
+      
+      if (allTemplates.length > 0) {
+        setPerguntas(allTemplates as Template[]);
       }
 
       setLoading(false);
