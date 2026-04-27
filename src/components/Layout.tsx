@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, FileBarChart } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, FileBarChart, BarChart3, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -35,6 +35,10 @@ export default function Layout() {
           <Link to="/diagnosticos" className={`nav-item ${isActive('/diagnosticos')}`}>
             <FileBarChart size={20} />
             <span>Diagnósticos</span>
+          </Link>
+          <Link to="/indicadores" className={`nav-item ${isActive('/indicadores')}`}>
+            <Target size={20} />
+            <span>KPIs por Setor</span>
           </Link>
           {isAdmin && (
             <Link to="/usuarios" className={`nav-item ${isActive('/usuarios')}`}>

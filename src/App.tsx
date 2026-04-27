@@ -13,6 +13,8 @@ import Usuarios from './pages/Usuarios';
 import Perfil from './pages/Perfil';
 import ConfiguracaoDiagnostico from './pages/ConfiguracaoDiagnostico';
 import EditarTemplatePadrao from './pages/EditarTemplatePadrao';
+import GestaoIndicadores from './pages/GestaoIndicadores';
+import FormIndicador from './pages/FormIndicador';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -36,6 +38,9 @@ function App() {
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/configuracao-diagnostico" element={<ConfiguracaoDiagnostico />} />
           <Route path="/configuracao-diagnostico/padrao" element={<EditarTemplatePadrao />} />
+          <Route path="/indicadores" element={<GestaoIndicadores />} />
+          <Route path="/indicadores/novo" element={<FormIndicador />} />
+          <Route path="/indicadores/:id/editar" element={<FormIndicador />} />
         </Route>
       </Route>
     </Routes>

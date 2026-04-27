@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit2, PlayCircle, Info, History, TrendingUp, AlertCircle, Calendar } from 'lucide-react';
+import { ArrowLeft, Edit2, PlayCircle, Info, History, TrendingUp, AlertCircle, Calendar, Target, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -32,8 +32,9 @@ export default function SetorDetalhe() {
 
   const [setor, setSetor] = useState<SetorDetalheType | null>(null);
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([]);
+  const [indicadores, setIndicadores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('info'); // info, historico, evolucao
+  const [activeTab, setActiveTab] = useState('info'); // info, historico, evolucao, indicadores
   
   // Mock Dimensões (Para o MVP, exibimos dados fixos se não houver respostas para não quebrar a tela)
   const [dimensoes, setDimensoes] = useState([
@@ -62,7 +63,15 @@ export default function SetorDetalhe() {
       
       if (dData) setDiagnosticos(dData);
 
-      // (MVP) No futuro aqui faremos o fetch real das respostas_diagnostico do ultimo diag.
+      // Buscar indicadores do setor
+      const { data: iData } = await supabase
+        .from('indicadores')
+        .select('*')
+        .eq('setor_id', id)
+        .eq('status', 'ativo')
+        .order('nome');
+      
+      if (iData) setIndicadores(iData);
 
       setLoading(false);
     }
@@ -144,6 +153,12 @@ export default function SetorDetalhe() {
           onClick={() => setActiveTab('evolucao')}
         >
           <TrendingUp size={16} /> Evolução
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'indicadores' ? 'active' : ''}`}
+          onClick={() => setActiveTab('indicadores')}
+        >
+          <Target size={16} /> Indicadores
         </button>
       </div>
 
@@ -307,6 +322,66 @@ export default function SetorDetalhe() {
                 </ResponsiveContainer>
               </div>
             </>
+          )}
+        </div>
+      )}
+
+      {/* Tab Content: Indicadores */}
+      {activeTab === 'indicadores' && (
+        <div className="animate-fade-in">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div>
+              <h3 className="font-bold text-lg">Indicadores de Desempenho</h3>
+              <p className="text-muted text-sm">Métricas operacionais independentes da maturidade.</p>
+            </div>
+            <button className="btn-primary flex-center gap-2" onClick={() => navigate('/indicadores/novo')}>
+              <Plus size={18} /> Novo Indicador
+            </button>
+          </div>
+
+          {indicadores.length === 0 ? (
+            <div className="glass-panel flex-center" style={{ padding: '4rem', flexDirection: 'column', opacity: 0.7 }}>
+              <Target size={48} color="var(--text-muted)" style={{ marginBottom: '1rem' }} />
+              <p className="text-muted">Nenhum indicador cadastrado para este setor.</p>
+              <button className="btn-outline mt-4" onClick={() => navigate('/indicadores/novo')}>Cadastrar Primeiro KPI</button>
+            </div>
+          ) : (
+            <div className="grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+              {indicadores.map(i => {
+                const getStatusColor = (atual: number, meta: number) => {
+                  const percent = (atual / meta) * 100;
+                  if (percent >= 100) return '#22c55e';
+                  if (percent >= 80) return '#f59e0b';
+                  return '#ef4444';
+                };
+                
+                return (
+                  <div key={i.id} className="glass-panel card-hover" style={{ padding: '1.5rem' }}>
+                    <div className="flex-row" style={{ justifyContent: 'space-between', marginBottom: '1rem' }}>
+                      <h4 className="font-bold">{i.nome}</h4>
+                      <button className="btn-icon sm" onClick={() => navigate(`/indicadores/${i.id}/editar`)}>
+                        <Edit2 size={14} />
+                      </button>
+                    </div>
+                    
+                    <div style={{ marginBottom: '1rem' }}>
+                      <div className="flex-row" style={{ justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                        <span className="text-2xl font-bold">{i.valor_atual}{i.unidade}</span>
+                        <span className="text-muted text-xs">Meta: {i.meta}{i.unidade}</span>
+                      </div>
+                      <div style={{ width: '100%', height: '6px', background: 'rgba(0,0,0,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ 
+                          width: `${Math.min((i.valor_atual / i.meta) * 100, 100)}%`, 
+                          height: '100%', 
+                          background: getStatusColor(i.valor_atual, i.meta)
+                        }} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted">Periodicidade: <span style={{ textTransform: 'capitalize' }}>{i.periodicidade}</span></p>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
