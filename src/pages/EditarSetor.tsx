@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, Plus, Trash2, Edit2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
@@ -28,12 +28,13 @@ export default function EditarSetor() {
   const navigate = useNavigate();
   const { isAdmin, isSuperAdmin } = useAuth();
 
+  const location = useLocation();
   const [setor, setSetor] = useState<Setor | null>(null);
   const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  const [activeTab, setActiveTab] = useState('dados'); // dados, questionario
+  const [activeTab, setActiveTab] = useState(location.state?.initialTab || 'dados'); // dados, questionario
 
   // Form Dados Gerais
   const [nome, setNome] = useState('');

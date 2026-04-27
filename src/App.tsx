@@ -11,6 +11,7 @@ import NovoDiagnostico from './pages/NovoDiagnostico';
 import ResultadoDiagnostico from './pages/ResultadoDiagnostico';
 import Usuarios from './pages/Usuarios';
 import Perfil from './pages/Perfil';
+import ConfiguracaoDiagnostico from './pages/ConfiguracaoDiagnostico';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -32,6 +33,7 @@ function App() {
           <Route path="/diagnosticos/:id" element={<ResultadoDiagnostico />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/configuracao-diagnostico" element={<ConfiguracaoDiagnostico />} />
         </Route>
       </Route>
     </Routes>

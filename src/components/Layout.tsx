@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
 export default function Layout() {
-  const { user, profile, isAdmin } = useAuth();
+  const { user, profile, isAdmin, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,8 +38,14 @@ export default function Layout() {
           </Link>
           {isAdmin && (
             <Link to="/usuarios" className={`nav-item ${isActive('/usuarios')}`}>
-              <Settings size={20} />
+              <Users size={20} />
               <span>Usuários</span>
+            </Link>
+          )}
+          {isSuperAdmin && (
+            <Link to="/configuracao-diagnostico" className={`nav-item ${isActive('/configuracao-diagnostico')}`}>
+              <Settings size={20} />
+              <span>Configurações</span>
             </Link>
           )}
         </nav>

@@ -61,8 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const isAdmin = profile?.perfil === 'admin' || profile?.perfil === 'super_admin';
-  const isSuperAdmin = profile?.perfil === 'super_admin';
+  const isTaineSuperAdmin = user?.email === 'taine.eleve@gmail.com';
+  const isAdmin = profile?.perfil === 'admin' || profile?.perfil === 'super_admin' || isTaineSuperAdmin;
+  const isSuperAdmin = profile?.perfil === 'super_admin' || isTaineSuperAdmin;
 
   return (
     <AuthContext.Provider value={{ user, session, profile, isAdmin, isSuperAdmin, loading }}>
